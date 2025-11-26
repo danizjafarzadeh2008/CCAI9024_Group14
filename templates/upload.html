@@ -1,0 +1,921 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Content - ApolloQuiz</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+      min-height: 100%;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    /* Top navbar (simple, to match home) */
+    .top-navbar {
+      width: 100%;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      margin-bottom: 1rem;
+    }
+
+    .top-logo {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #4a5568;
+    }
+
+    .top-nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .top-nav-link {
+      text-decoration: none;
+      font-weight: 500;
+      color: #4a5568;
+      font-size: 0.95rem;
+      transition: color 0.2s ease;
+    }
+
+    .top-nav-link:hover {
+      color: #667eea;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin: 0 0 0.5rem 0;
+    }
+
+    .page-subtitle {
+      font-size: 1.1rem;
+      color: #718096;
+      margin: 0;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 1.25rem;
+      text-align: center;
+      font-weight: 600;
+      color: #718096;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-bottom: 3px solid transparent;
+      background: #f7fafc;
+    }
+
+    .tab:hover {
+      color: #4a5568;
+      background: #edf2f7;
+    }
+
+    .tab.active {
+      color: #667eea;
+      background: #ffffff;
+      border-bottom-color: #667eea;
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+      padding: 2rem;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .form-label.optional::after {
+      content: " (optional)";
+      color: #a0aec0;
+      font-weight: 400;
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #ffffff;
+      color: #2d3748;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-input::placeholder {
+      color: #cbd5e0;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .file-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px dashed #cbd5e0;
+      border-radius: 8px;
+      background: #f7fafc;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .file-input:hover {
+      border-color: #667eea;
+      background: #edf2f7;
+    }
+
+    .file-input::file-selector-button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      background: #667eea;
+      color: #ffffff;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .file-input::file-selector-button:hover {
+      background: #5568d3;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.875rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-primary.loading {
+      background: #a0aec0;
+      cursor: wait;
+    }
+
+    /* Messages */
+    .message {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .message-success {
+      background: #c6f6d5;
+      color: #22543d;
+      border: 1px solid #9ae6b4;
+    }
+
+    .message-error {
+      background: #fed7d7;
+      color: #742a2a;
+      border: 1px solid #fc8181;
+    }
+
+    /* Response Panel */
+    .response-panel {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .response-title {
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .response-content {
+      font-size: 0.9rem;
+      color: #4a5568;
+      line-height: 1.6;
+    }
+
+    .response-id {
+      background: #667eea;
+      color: #ffffff;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      display: inline-block;
+      margin-top: 0.5rem;
+    }
+
+    /* Selected Content Section */
+    .selected-content {
+      background: #edf2f7;
+      border-top: 2px solid #e2e8f0;
+      padding: 2rem;
+    }
+
+    .selected-title {
+      font-weight: 700;
+      color: #2d3748;
+      margin: 0 0 1rem 0;
+      font-size: 1.1rem;
+    }
+
+    .content-ids {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .content-id-badge {
+      background: #667eea;
+      color: #ffffff;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      color: #a0aec0;
+      font-style: italic;
+      font-size: 0.95rem;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem 1rem 2rem;
+      }
+
+      .page-title {
+        font-size: 2rem;
+      }
+
+      .tab {
+        padding: 1rem 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .tab-content {
+        padding: 1.5rem;
+      }
+
+      .top-navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <!-- Simple top navbar -->
+  <div class="top-navbar">
+    <div class="top-logo">ApolloQuiz</div>
+    <div class="top-nav-links">
+      <a href="/" class="top-nav-link">Home</a>
+      <a href="/upload/" class="top-nav-link">Upload</a>
+      <a href="/quizzes/" class="top-nav-link">Quizzes</a>
+    </div>
+  </div>
+
+  <div class="container">
+   <!-- Header -->
+   <header class="header">
+    <h1 class="page-title" id="page-title">Upload Content</h1>
+    <p class="page-subtitle" id="page-subtitle">Add your content to generate quizzes</p>
+   </header>
+
+   <!-- Main Card -->
+   <div class="card">
+    <!-- Tabs -->
+    <div class="tabs">
+     <div class="tab active" data-tab="youtube" id="tab-youtube">
+      YouTube
+     </div>
+     <div class="tab" data-tab="audio" id="tab-audio">
+      Audio
+     </div>
+     <div class="tab" data-tab="document" id="tab-document">
+      PDF / Image
+     </div>
+    </div>
+
+    <!-- YouTube Tab Content -->
+    <div class="tab-content active" id="content-youtube">
+     <div id="youtube-message"></div>
+     <form id="youtube-form">
+      <div class="form-group">
+        <label class="form-label" for="youtube-url" id="label-youtube-url">YouTube URL</label>
+        <input type="url" id="youtube-url" class="form-input" placeholder="https://youtube.com/watch?v=..." required>
+      </div>
+      <div class="form-group">
+        <label class="form-label optional" for="youtube-title" id="label-youtube-title">Title</label>
+        <input type="text" id="youtube-title" class="form-input" placeholder="My YouTube Video">
+      </div>
+      <div class="form-group">
+        <label class="form-label optional" for="youtube-language" id="label-youtube-language">Language</label>
+        <select id="youtube-language" class="form-select">
+          <option value="en">English</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="it">Italian</option>
+          <option value="pt">Portuguese</option>
+          <option value="zh">Chinese</option>
+          <option value="ja">Japanese</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" id="btn-youtube">Save YouTube Content</button>
+     </form>
+     <div id="youtube-response"></div>
+    </div>
+
+    <!-- Audio Tab Content -->
+    <div class="tab-content" id="content-audio">
+     <div id="audio-message"></div>
+     <form id="audio-form">
+      <div class="form-group">
+        <label class="form-label" for="audio-file" id="label-audio-file">Choose file</label>
+        <input type="file" id="audio-file" class="file-input" accept=".mp3,.wav,.m4a,.mp4" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label optional" for="audio-title" id="label-audio-title">Title</label>
+        <input type="text" id="audio-title" class="form-input" placeholder="My Audio Lecture">
+      </div>
+      <div class="form-group">
+        <label class="form-label optional" for="audio-language" id="label-audio-language">Language</label>
+        <select id="audio-language" class="form-select">
+          <option value="en">English</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="it">Italian</option>
+          <option value="pt">Portuguese</option>
+          <option value="zh">Chinese</option>
+          <option value="ja">Japanese</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" id="btn-audio">Upload Audio &amp; Process</button>
+     </form>
+     <div id="audio-response"></div>
+    </div>
+
+    <!-- Document Tab Content -->
+    <div class="tab-content" id="content-document">
+     <div id="document-message"></div>
+     <form id="document-form">
+      <div class="form-group">
+        <label class="form-label" for="document-file" id="label-document-file">Choose file</label>
+        <input type="file" id="document-file" class="file-input" accept=".pdf,.png,.jpg,.jpeg" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label optional" for="document-title" id="label-document-title">Title</label>
+        <input type="text" id="document-title" class="form-input" placeholder="My Document">
+      </div>
+      <div class="form-group">
+        <label class="form-label optional" for="document-language" id="label-document-language">Language</label>
+        <select id="document-language" class="form-select">
+          <option value="en">English</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="it">Italian</option>
+          <option value="pt">Portuguese</option>
+          <option value="zh">Chinese</option>
+          <option value="ja">Japanese</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" id="btn-document">Upload Document &amp; Extract Text</button>
+     </form>
+     <div id="document-response"></div>
+    </div>
+
+    <!-- Selected Content Section -->
+    <div class="selected-content">
+     <h3 class="selected-title">Selected Content IDs</h3>
+     <div class="content-ids" id="content-ids">
+       <span class="empty-state">No content selected yet</span>
+     </div>
+     <button class="btn btn-primary" id="btn-next" disabled>Next: Configure Quiz</button>
+    </div>
+   </div>
+  </div>
+
+  <script>
+    // Default configuration
+    const defaultConfig = {
+      background_color: "#f5f7fa",
+      surface_color: "#ffffff",
+      text_color: "#2d3748",
+      primary_action_color: "#667eea",
+      secondary_action_color: "#e2e8f0",
+      font_family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+      font_size: 16,
+      page_title: "Upload Content",
+      page_subtitle: "Add your content to generate quizzes",
+      tab_youtube: "YouTube",
+      tab_audio: "Audio",
+      tab_document: "PDF / Image",
+      btn_youtube: "Save YouTube Content",
+      btn_audio: "Upload Audio & Process",
+      btn_document: "Upload Document & Extract Text",
+      btn_next: "Next: Configure Quiz",
+      label_url: "YouTube URL",
+      label_title: "Title",
+      label_language: "Language",
+      label_file: "Choose file"
+    };
+
+    // State management
+    let contentIds = [];
+
+    // Tab switching
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetTab = tab.dataset.tab;
+        
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(tc => tc.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(`content-${targetTab}`).classList.add('active');
+      });
+    });
+
+    // Helper functions
+    function showMessage(containerId, message, type) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = `<div class="message message-${type}">${message}</div>`;
+      setTimeout(() => {
+        container.innerHTML = '';
+      }, 5000);
+    }
+
+    function showResponse(containerId, data) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = `
+        <div class="response-panel">
+          <div class="response-title">Response:</div>
+          <div class="response-content">
+            ${data.title ? `<strong>Title:</strong> ${data.title}<br>` : ''}
+            ${data.id ? `<span class="response-id">ID: ${data.id}</span>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function updateContentIds() {
+      const container = document.getElementById('content-ids');
+      const nextBtn = document.getElementById('btn-next');
+      
+      if (contentIds.length === 0) {
+        container.innerHTML = '<span class="empty-state">No content selected yet</span>';
+        nextBtn.disabled = true;
+      } else {
+        container.innerHTML = contentIds
+          .map(id => `<span class="content-id-badge">${id}</span>`)
+          .join('');
+        nextBtn.disabled = false;
+      }
+    }
+
+    function setButtonLoading(button, isLoading, originalText) {
+      if (isLoading) {
+        button.classList.add('loading');
+        button.disabled = true;
+        button.innerHTML = `<span class="spinner"></span>${originalText}`;
+      } else {
+        button.classList.remove('loading');
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+
+    // YouTube form handler
+    document.getElementById('youtube-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const button = document.getElementById('btn-youtube');
+      const originalText = 'Saving...';
+      setButtonLoading(button, true, originalText);
+      
+      const youtubeUrl = document.getElementById('youtube-url').value;
+      const title = document.getElementById('youtube-title').value;
+      const language = document.getElementById('youtube-language').value;
+      
+      try {
+        const response = await fetch('/api/content/youtube/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            youtube_url: youtubeUrl,
+            title: title || undefined,
+            language: language
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          showMessage('youtube-message', 'Content saved successfully!', 'success');
+          showResponse('youtube-response', data);
+          
+          if (data.id) {
+            contentIds.push(data.id);
+            updateContentIds();
+          }
+          
+          document.getElementById('youtube-form').reset();
+        } else {
+          showMessage('youtube-message', data.error || 'Failed to save content', 'error');
+        }
+      } catch (error) {
+        showMessage('youtube-message', 'Network error: ' + error.message, 'error');
+      } finally {
+        setButtonLoading(button, false, 'Save YouTube Content');
+      }
+    });
+
+    // Audio form handler
+    document.getElementById('audio-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const button = document.getElementById('btn-audio');
+      const originalText = 'Uploading...';
+      setButtonLoading(button, true, originalText);
+      
+      const fileInput = document.getElementById('audio-file');
+      const title = document.getElementById('audio-title').value;
+      const language = document.getElementById('audio-language').value;
+      
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+      if (title) formData.append('title', title);
+      formData.append('language', language);
+      
+      try {
+        const response = await fetch('/api/content/audio/', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          showMessage('audio-message', 'Audio uploaded and processed successfully!', 'success');
+          showResponse('audio-response', data);
+          
+          if (data.id) {
+            contentIds.push(data.id);
+            updateContentIds();
+          }
+          
+          document.getElementById('audio-form').reset();
+        } else {
+          showMessage('audio-message', data.error || 'Failed to upload audio', 'error');
+        }
+      } catch (error) {
+        showMessage('audio-message', 'Network error: ' + error.message, 'error');
+      } finally {
+        setButtonLoading(button, false, 'Upload Audio & Process');
+      }
+    });
+
+    // Document form handler
+    document.getElementById('document-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const button = document.getElementById('btn-document');
+      const originalText = 'Uploading...';
+      setButtonLoading(button, true, originalText);
+      
+      const fileInput = document.getElementById('document-file');
+      const title = document.getElementById('document-title').value;
+      const language = document.getElementById('document-language').value;
+      
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+      if (title) formData.append('title', title);
+      formData.append('language', language);
+      
+      try {
+        const response = await fetch('/api/content/document/', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          showMessage('document-message', 'Document uploaded and text extracted!', 'success');
+          showResponse('document-response', data);
+          
+          if (data.id) {
+            contentIds.push(data.id);
+            updateContentIds();
+          }
+          
+          document.getElementById('document-form').reset();
+        } else {
+          showMessage('document-message', data.error || 'Failed to upload document', 'error');
+        }
+      } catch (error) {
+        showMessage('document-message', 'Network error: ' + error.message, 'error');
+      } finally {
+        setButtonLoading(button, false, 'Upload Document & Extract Text');
+      }
+    });
+
+    // Next button handler
+    document.getElementById('btn-next').addEventListener('click', () => {
+      // 🔥 Persist selected content IDs so configure page can read them
+      try {
+        localStorage.setItem('selectedContentIds', JSON.stringify(contentIds));
+      } catch (e) {
+        console.warn('Could not store selectedContentIds in localStorage:', e);
+      }
+      window.location.href = '/configure/';
+    });
+
+    // Element SDK implementation
+    async function onConfigChange(config) {
+      const baseFontSize = config.font_size || defaultConfig.font_size;
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseFontStack = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
+
+      document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+
+      // Apply colors
+      const bgColor = config.background_color || defaultConfig.background_color;
+      const surfaceColor = config.surface_color || defaultConfig.surface_color;
+      document.body.style.background = `linear-gradient(135deg, ${bgColor} 0%, #e4e9f2 100%)`;
+      
+      document.querySelectorAll('.card').forEach(el => {
+        el.style.background = surfaceColor;
+      });
+
+      const textColor = config.text_color || defaultConfig.text_color;
+      document.querySelectorAll('.page-title, .page-subtitle, .form-label, .selected-title, .response-title, .response-content').forEach(el => {
+        el.style.color = textColor;
+      });
+
+      const primaryAction = config.primary_action_color || defaultConfig.primary_action_color;
+      document.querySelectorAll('.btn-primary, .tab.active, .content-id-badge, .response-id').forEach(el => {
+        el.style.background = primaryAction;
+      });
+      
+      const activeTab = document.querySelector('.tab.active');
+      if (activeTab) {
+        activeTab.style.borderBottomColor = primaryAction;
+      }
+
+      // Apply font sizes
+      document.querySelector('.page-title').style.fontSize = `${baseFontSize * 2.5}px`;
+      document.querySelector('.page-subtitle').style.fontSize = `${baseFontSize * 1.1}px`;
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.style.fontSize = `${baseFontSize}px`;
+      });
+      document.querySelectorAll('.form-label').forEach(label => {
+        label.style.fontSize = `${baseFontSize * 0.95}px`;
+      });
+      document.querySelectorAll('.form-input, .form-select, .btn').forEach(el => {
+        el.style.fontSize = `${baseFontSize}px`;
+      });
+      document.querySelector('.selected-title').style.fontSize = `${baseFontSize * 1.1}px`;
+
+      // Update text content
+      document.getElementById('page-title').textContent = config.page_title || defaultConfig.page_title;
+      document.getElementById('page-subtitle').textContent = config.page_subtitle || defaultConfig.page_subtitle;
+      document.getElementById('tab-youtube').textContent = config.tab_youtube || defaultConfig.tab_youtube;
+      document.getElementById('tab-audio').textContent = config.tab_audio || defaultConfig.tab_audio;
+      document.getElementById('tab-document').textContent = config.tab_document || defaultConfig.tab_document;
+      document.getElementById('btn-youtube').textContent = config.btn_youtube || defaultConfig.btn_youtube;
+      document.getElementById('btn-audio').textContent = config.btn_audio || defaultConfig.btn_audio;
+      document.getElementById('btn-document').textContent = config.btn_document || defaultConfig.btn_document;
+      document.getElementById('btn-next').textContent = config.btn_next || defaultConfig.btn_next;
+      
+      const labelUrl = config.label_url || defaultConfig.label_url;
+      const labelTitle = config.label_title || defaultConfig.label_title;
+      const labelLanguage = config.label_language || defaultConfig.label_language;
+      const labelFile = config.label_file || defaultConfig.label_file;
+      
+      document.getElementById('label-youtube-url').textContent = labelUrl;
+      document.getElementById('label-youtube-title').textContent = labelTitle;
+      document.getElementById('label-youtube-language').textContent = labelLanguage;
+      document.getElementById('label-audio-file').textContent = labelFile;
+      document.getElementById('label-audio-title').textContent = labelTitle;
+      document.getElementById('label-audio-language').textContent = labelLanguage;
+      document.getElementById('label-document-file').textContent = labelFile;
+      document.getElementById('label-document-title').textContent = labelTitle;
+      document.getElementById('label-document-language').textContent = labelLanguage;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            }
+          },
+          {
+            get: () => config.surface_color || defaultConfig.surface_color,
+            set: (value) => {
+              config.surface_color = value;
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ surface_color: value });
+              }
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            }
+          },
+          {
+            get: () => config.primary_action_color || defaultConfig.primary_action_color,
+            set: (value) => {
+              config.primary_action_color = value;
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ primary_action_color: value });
+              }
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => {
+            config.font_family = value;
+            if (window.elementSdk) {
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => {
+            config.font_size = value;
+            if (window.elementSdk) {
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["page_title", config.page_title || defaultConfig.page_title],
+        ["page_subtitle", config.page_subtitle || defaultConfig.page_subtitle],
+        ["tab_youtube", config.tab_youtube || defaultConfig.tab_youtube],
+        ["tab_audio", config.tab_audio || defaultConfig.tab_audio],
+        ["tab_document", config.tab_document || defaultConfig.tab_document],
+        ["btn_youtube", config.btn_youtube || defaultConfig.btn_youtube],
+        ["btn_audio", config.btn_audio || defaultConfig.btn_audio],
+        ["btn_document", config.btn_document || defaultConfig.btn_document],
+        ["btn_next", config.btn_next || defaultConfig.btn_next],
+        ["label_url", config.label_url || defaultConfig.label_url],
+        ["label_title", config.label_title || defaultConfig.label_title],
+        ["label_language", config.label_language || defaultConfig.label_language],
+        ["label_file", config.label_file || defaultConfig.label_file]
+      ]);
+    }
+
+    // Initialize Element SDK
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a1ae8447647e8a6',t:'MTc2MzY3Mjc0NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+ </body>
+</html>

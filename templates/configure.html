@@ -1,0 +1,867 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configure Quiz - ApolloQuiz</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+      min-height: 100%;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .top-navbar {
+      width: 100%;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      margin-bottom: 1rem;
+    }
+
+    .top-logo {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #4a5568;
+    }
+
+    .top-nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .top-nav-link {
+      text-decoration: none;
+      font-weight: 500;
+      color: #4a5568;
+      font-size: 0.95rem;
+      transition: color 0.2s ease;
+    }
+
+    .top-nav-link:hover {
+      color: #667eea;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin: 0 0 0.5rem 0;
+    }
+
+    .page-subtitle {
+      font-size: 1.1rem;
+      color: #718096;
+      margin: 0;
+    }
+
+    .main-card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .card-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    .left-section {
+      padding: 2rem;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .right-section {
+      padding: 2rem;
+      background: #f7fafc;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .form-label.optional::after {
+      content: " (optional)";
+      color: #a0aec0;
+      font-weight: 400;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #ffffff;
+      color: #2d3748;
+      font-family: inherit;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+      color: #cbd5e0;
+    }
+
+    .chips-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .chip {
+      padding: 0.625rem 1.25rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      background: #ffffff;
+      color: #4a5568;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      user-select: none;
+      font-size: 0.9rem;
+    }
+
+    .chip:hover {
+      border-color: #cbd5e0;
+      background: #f7fafc;
+    }
+
+    .chip.selected {
+      background: #667eea;
+      color: #ffffff;
+      border-color: #667eea;
+    }
+
+    .range-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .range-slider {
+      flex: 1;
+      height: 8px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #667eea;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .range-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .range-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #667eea;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .range-slider::-moz-range-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .range-value {
+      font-weight: 600;
+      color: #667eea;
+      min-width: 40px;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+
+    .summary-title {
+      font-weight: 700;
+      color: #2d3748;
+      margin: 0 0 1rem 0;
+      font-size: 1.1rem;
+    }
+
+    .content-list {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      min-height: 120px;
+    }
+
+    .content-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: #edf2f7;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .content-icon {
+      width: 24px;
+      height: 24px;
+      background: #667eea;
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .content-id {
+      color: #4a5568;
+      font-weight: 500;
+    }
+
+    .empty-state {
+      color: #a0aec0;
+      font-style: italic;
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .btn {
+      padding: 0.875rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-primary.loading {
+      background: #a0aec0;
+      cursor: wait;
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+      background: #f7fafc;
+      transform: translateY(-2px);
+    }
+
+    .bottom-section {
+      padding: 2rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .message {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .message-success {
+      background: #c6f6d5;
+      color: #22543d;
+      border: 1px solid #9ae6b4;
+    }
+
+    .message-error {
+      background: #fed7d7;
+      color: #742a2a;
+      border: 1px solid #fc8181;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1.5rem 1rem 2rem;
+      }
+
+      .page-title {
+        font-size: 2rem;
+      }
+
+      .card-content {
+        grid-template-columns: 1fr;
+      }
+
+      .left-section {
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .right-section {
+        padding: 1.5rem;
+      }
+
+      .top-navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="top-navbar">
+    <div class="top-logo">ApolloQuiz</div>
+    <div class="top-nav-links">
+      <a href="/" class="top-nav-link">Home</a>
+      <a href="/upload/" class="top-nav-link">Upload</a>
+      <a href="/quizzes/" class="top-nav-link">Quizzes</a>
+    </div>
+  </div>
+
+  <div class="container">
+   <header class="header">
+    <h1 class="page-title" id="page-title">Configure Your Quiz</h1>
+    <p class="page-subtitle" id="page-subtitle">Set up quiz parameters and preferences</p>
+   </header>
+
+   <div class="main-card">
+    <div class="card-content">
+     <div class="left-section">
+      <div id="form-message"></div>
+      <form id="quiz-form">
+       <div class="form-group">
+        <label class="form-label" for="quiz-title" id="label-quiz-title">Quiz Title</label>
+        <input type="text" id="quiz-title" class="form-input" placeholder="Enter quiz title" required>
+       </div>
+
+       <div class="form-group">
+        <label class="form-label" for="difficulty" id="label-difficulty">Difficulty</label>
+        <select id="difficulty" class="form-select">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+          <option value="mixed">Mixed</option>
+        </select>
+       </div>
+
+       <div class="form-group">
+        <label class="form-label" for="num-questions" id="label-num-questions">Number of Questions (3–20)</label>
+        <div class="range-container">
+          <input type="range" id="num-questions" class="range-slider" min="3" max="20" value="10">
+          <span class="range-value" id="num-questions-value">10</span>
+        </div>
+       </div>
+
+       <div class="form-group">
+        <label class="form-label" id="label-question-types">Question Types</label>
+        <div class="chips-container" id="question-types">
+         <div class="chip" data-type="MCQ">MCQ</div>
+         <div class="chip" data-type="FRQ">FRQ</div>
+         <div class="chip" data-type="TRUE_FALSE">TRUE/FALSE</div>
+         <div class="chip" data-type="CLOZE">CLOZE</div>
+         <div class="chip" data-type="MATCHING">MATCHING</div>
+         <div class="chip" data-type="REASONING">REASONING</div>
+        </div>
+       </div>
+
+       <div class="form-group">
+        <label class="form-label" for="bloom-level" id="label-bloom-level">Bloom Level</label>
+        <select id="bloom-level" class="form-select">
+          <option value="remember">Remember</option>
+          <option value="understand" selected>Understand</option>
+          <option value="apply">Apply</option>
+          <option value="analyze">Analyze</option>
+          <option value="evaluate">Evaluate</option>
+          <option value="create">Create</option>
+        </select>
+       </div>
+
+       <div class="form-group">
+        <label class="form-label optional" for="topic-focus" id="label-topic-focus">Topic Focus</label>
+        <input type="text" id="topic-focus" class="form-input" placeholder="e.g., Chapter 5, Photosynthesis">
+       </div>
+
+       <div class="form-group">
+        <label class="form-label" for="output-format" id="label-output-format">Output Format</label>
+        <select id="output-format" class="form-select">
+          <option value="include_explanations">Include Explanations</option>
+          <option value="short_answers_only">Short Answers Only</option>
+        </select>
+       </div>
+
+       <div class="form-group">
+        <label class="form-label optional" for="custom-instructions" id="label-custom-instructions">Custom Instructions</label>
+        <textarea id="custom-instructions" class="form-textarea" placeholder="Add any special instructions or requirements for the quiz..."></textarea>
+       </div>
+      </form>
+     </div>
+
+     <div class="right-section">
+      <h3 class="summary-title" id="sidebar-title">Selected Content</h3>
+      <div class="content-list" id="content-list"></div>
+      <button class="btn btn-secondary" id="btn-change-content">Change Content</button>
+     </div>
+    </div>
+
+    <div class="bottom-section">
+      <button class="btn btn-primary" id="btn-generate">Generate Quiz</button>
+    </div>
+   </div>
+  </div>
+
+  <script>
+    // Default configuration
+    const defaultConfig = {
+      background_color: "#f5f7fa",
+      surface_color: "#ffffff",
+      text_color: "#2d3748",
+      primary_action_color: "#667eea",
+      font_family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+      font_size: 16,
+      page_title: "Configure Your Quiz",
+      page_subtitle: "Set up quiz parameters and preferences",
+      label_quiz_title: "Quiz Title",
+      label_difficulty: "Difficulty",
+      label_num_questions: "Number of Questions (3–20)",
+      label_question_types: "Question Types",
+      label_bloom_level: "Bloom Level",
+      label_topic_focus: "Topic Focus",
+      label_output_format: "Output Format",
+      label_custom_instructions: "Custom Instructions",
+      btn_change_content: "Change Content",
+      btn_generate: "Generate Quiz",
+      sidebar_title: "Selected Content"
+    };
+
+    // 🔹 Read selected content IDs from localStorage (set in upload.html)
+    let selectedContentIds = [];
+    try {
+      const raw = localStorage.getItem('selectedContentIds');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          selectedContentIds = parsed;
+        }
+      }
+    } catch (e) {
+      console.warn("Could not read selectedContentIds from localStorage:", e);
+    }
+
+    // State
+    let selectedQuestionTypes = new Set();
+
+    // Initialize content list
+    function renderContentList() {
+      const contentList = document.getElementById('content-list');
+
+      if (!selectedContentIds || selectedContentIds.length === 0) {
+        contentList.innerHTML = `
+          <div class="empty-state">
+            No content selected.<br/>
+            Please go back to the upload page and add at least one source.
+          </div>
+        `;
+        return;
+      }
+
+      contentList.innerHTML = selectedContentIds
+        .map(id => `
+          <div class="content-item">
+            <div class="content-icon">📄</div>
+            <span class="content-id">Content ID: ${id}</span>
+          </div>
+        `)
+        .join('');
+    }
+
+    renderContentList();
+
+    // Range slider update
+    const rangeSlider = document.getElementById('num-questions');
+    const rangeValue = document.getElementById('num-questions-value');
+    rangeSlider.addEventListener('input', (e) => {
+      rangeValue.textContent = e.target.value;
+    });
+
+    // Question type chips
+    const chips = document.querySelectorAll('.chip');
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const type = chip.dataset.type;
+        if (chip.classList.contains('selected')) {
+          chip.classList.remove('selected');
+          selectedQuestionTypes.delete(type);
+        } else {
+          chip.classList.add('selected');
+          selectedQuestionTypes.add(type);
+        }
+      });
+    });
+
+    // Helper functions
+    function showMessage(message, type) {
+      const container = document.getElementById('form-message');
+      container.innerHTML = `<div class="message message-${type}">${message}</div>`;
+      setTimeout(() => {
+        container.innerHTML = '';
+      }, 5000);
+    }
+
+    function setButtonLoading(button, isLoading, loadingLabel) {
+      if (isLoading) {
+        button.classList.add('loading');
+        button.disabled = true;
+        button.innerHTML = `<span class="spinner"></span>${loadingLabel}`;
+      } else {
+        button.classList.remove('loading');
+        button.disabled = false;
+        button.textContent = defaultConfig.btn_generate;
+      }
+    }
+
+    // Change content button
+    document.getElementById('btn-change-content').addEventListener('click', () => {
+      window.location.href = '/upload/';
+    });
+
+    // Generate quiz
+    document.getElementById('btn-generate').addEventListener('click', async () => {
+      const button = document.getElementById('btn-generate');
+
+      // Validation
+      if (!selectedContentIds || selectedContentIds.length === 0) {
+        showMessage('No content selected. Please go back to Upload and add content first.', 'error');
+        return;
+      }
+
+      if (selectedQuestionTypes.size === 0) {
+        showMessage('Please select at least one question type.', 'error');
+        return;
+      }
+
+      const title = document.getElementById('quiz-title').value.trim();
+      if (!title) {
+        showMessage('Please enter a quiz title.', 'error');
+        return;
+      }
+
+      setButtonLoading(button, true, 'Generating...');
+
+      const quizData = {
+        title: title,
+        content_ids: selectedContentIds,
+        settings: {
+          difficulty: document.getElementById('difficulty').value,
+          num_questions: parseInt(document.getElementById('num-questions').value),
+          question_types: Array.from(selectedQuestionTypes),
+          bloom_level: document.getElementById('bloom-level').value,
+          topic_focus: document.getElementById('topic-focus').value || undefined,
+          output_format: document.getElementById('output-format').value,
+          language: "en"
+        },
+        custom_instructions: document.getElementById('custom-instructions').value || undefined
+      };
+
+      console.log('Submitting quiz configuration:', quizData);
+
+      try {
+        const response = await fetch('/api/quizzes/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(quizData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showMessage('Quiz generation started successfully!', 'success');
+
+          // Store for loading/results pages
+          try {
+            localStorage.setItem('currentQuizId', data.id);
+            localStorage.setItem('currentQuizTitle', title);
+          } catch (e) {
+            console.warn('Could not store current quiz info:', e);
+          }
+
+          // Redirect to loading page
+          setTimeout(() => {
+            window.location.href = `/quiz-loading/${data.id}`;
+          }, 1500);
+        } else {
+          showMessage(data.error || 'Failed to generate quiz', 'error');
+          setButtonLoading(button, false);
+        }
+      } catch (error) {
+        showMessage('Network error: ' + error.message, 'error');
+        setButtonLoading(button, false);
+      }
+    });
+
+    // Element SDK implementation
+    async function onConfigChange(config) {
+      const baseFontSize = config.font_size || defaultConfig.font_size;
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseFontStack = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
+
+      document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+
+      const bgColor = config.background_color || defaultConfig.background_color;
+      document.body.style.background = `linear-gradient(135deg, ${bgColor} 0%, #e4e9f2 100%)`;
+
+      const surfaceColor = config.surface_color || defaultConfig.surface_color;
+      document.querySelector('.main-card').style.background = surfaceColor;
+      document.querySelectorAll('.content-list').forEach(el => {
+        el.style.background = surfaceColor;
+      });
+      document.querySelector('.btn-secondary').style.background = surfaceColor;
+
+      const textColor = config.text_color || defaultConfig.text_color;
+      document.querySelectorAll('.page-title, .page-subtitle, .form-label, .summary-title, .content-id').forEach(el => {
+        el.style.color = textColor;
+      });
+
+      const primaryAction = config.primary_action_color || defaultConfig.primary_action_color;
+      document.querySelectorAll('.btn-primary, .chip.selected, .content-icon').forEach(el => {
+        el.style.background = primaryAction;
+      });
+      document.querySelector('.range-value').style.color = primaryAction;
+      document.querySelector('.btn-secondary').style.color = primaryAction;
+      document.querySelector('.btn-secondary').style.borderColor = primaryAction;
+
+      const style = document.createElement('style');
+      style.textContent = `
+        .range-slider::-webkit-slider-thumb {
+          background: ${primaryAction} !important;
+        }
+        .range-slider::-moz-range-thumb {
+          background: ${primaryAction} !important;
+        }
+      `;
+      document.head.appendChild(style);
+
+      document.querySelector('.page-title').style.fontSize = `${baseFontSize * 2.5}px`;
+      document.querySelector('.page-subtitle').style.fontSize = `${baseFontSize * 1.1}px`;
+      document.querySelectorAll('.form-label').forEach(el => {
+        el.style.fontSize = `${baseFontSize * 0.95}px`;
+      });
+      document.querySelectorAll('.form-input, .form-select, .form-textarea, .btn').forEach(el => {
+        el.style.fontSize = `${baseFontSize}px`;
+      });
+      document.querySelectorAll('.chip').forEach(el => {
+        el.style.fontSize = `${baseFontSize * 0.9}px`;
+      });
+      document.querySelector('.summary-title').style.fontSize = `${baseFontSize * 1.1}px`;
+      document.querySelector('.range-value').style.fontSize = `${baseFontSize * 1.1}px`;
+
+      document.getElementById('page-title').textContent = config.page_title || defaultConfig.page_title;
+      document.getElementById('page-subtitle').textContent = config.page_subtitle || defaultConfig.page_subtitle;
+      document.getElementById('label-quiz-title').textContent = config.label_quiz_title || defaultConfig.label_quiz_title;
+      document.getElementById('label-difficulty').textContent = config.label_difficulty || defaultConfig.label_difficulty;
+      document.getElementById('label-num-questions').textContent = config.label_num_questions || defaultConfig.label_num_questions;
+      document.getElementById('label-question-types').textContent = config.label_question_types || defaultConfig.label_question_types;
+      document.getElementById('label-bloom-level').textContent = config.label_bloom_level || defaultConfig.label_bloom_level;
+      document.getElementById('label-topic-focus').textContent = config.label_topic_focus || defaultConfig.label_topic_focus;
+      document.getElementById('label-output-format').textContent = config.label_output_format || defaultConfig.label_output_format;
+      document.getElementById('label-custom-instructions').textContent = config.label_custom_instructions || defaultConfig.label_custom_instructions;
+      document.getElementById('btn-change-content').textContent = config.btn_change_content || defaultConfig.btn_change_content;
+      document.getElementById('btn-generate').textContent = config.btn_generate || defaultConfig.btn_generate;
+      document.getElementById('sidebar-title').textContent = config.sidebar_title || defaultConfig.sidebar_title;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            }
+          },
+          {
+            get: () => config.surface_color || defaultConfig.surface_color,
+            set: (value) => {
+              config.surface_color = value;
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ surface_color: value });
+              }
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            }
+          },
+          {
+            get: () => config.primary_action_color || defaultConfig.primary_action_color,
+            set: (value) => {
+              config.primary_action_color = value;
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ primary_action_color: value });
+              }
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => {
+            config.font_family = value;
+            if (window.elementSdk) {
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => {
+            config.font_size = value;
+            if (window.elementSdk) {
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["page_title", config.page_title || defaultConfig.page_title],
+        ["page_subtitle", config.page_subtitle || defaultConfig.page_subtitle],
+        ["label_quiz_title", config.label_quiz_title || defaultConfig.label_quiz_title],
+        ["label_difficulty", config.label_difficulty || defaultConfig.label_difficulty],
+        ["label_num_questions", config.label_num_questions || defaultConfig.label_num_questions],
+        ["label_question_types", config.label_question_types || defaultConfig.label_question_types],
+        ["label_bloom_level", config.label_bloom_level || defaultConfig.label_bloom_level],
+        ["label_topic_focus", config.label_topic_focus || defaultConfig.label_topic_focus],
+        ["label_output_format", config.label_output_format || defaultConfig.label_output_format],
+        ["label_custom_instructions", config.label_custom_instructions || defaultConfig.label_custom_instructions],
+        ["btn_change_content", config.btn_change_content || defaultConfig.btn_change_content],
+        ["btn_generate", config.btn_generate || defaultConfig.btn_generate],
+        ["sidebar_title", config.sidebar_title || defaultConfig.sidebar_title]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a1aeef15144e8a6',t:'MTc2MzY3MzAxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+ </body>
+</html>
