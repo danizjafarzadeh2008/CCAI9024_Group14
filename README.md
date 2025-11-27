@@ -36,7 +36,7 @@ cd ai_quiz_platform
 
 ```bash
 python -m venv venv
-.env\Scriptsctivate
+venv\Scripts\ctivate
 ```
 
 **Mac/Linux:**
@@ -58,11 +58,9 @@ Included dependencies:
 - Django REST Framework  
 - PyPDF2  
 - pytesseract  
-- openai-whisper  
 - ElevenLabs API tools  
 - youtube-transcript-api  
 - requests  
-- torch  
 - And more listed in `requirements.txt`
 
 ---
@@ -185,7 +183,6 @@ Select your quiz to see:
 ### AI / ML
 - DeepSeek Chat Completions API  
 - ElevenLabs Speech-to-Text  
-- openai-whisper (fallback STT)  
 - Tesseract OCR  
 - PyPDF2  
 - YouTube Transcript API  
@@ -199,8 +196,7 @@ Select your quiz to see:
 - Ubuntu 22.04 LTS  
 - AWS EC2 / Lightsail  
 - Nginx  
-- Gunicorn  
-- Certbot SSL  
+- Gunicorn
 
 ---
 
@@ -227,7 +223,7 @@ Select your quiz to see:
 - PyPDF2 for PDFs  
 - Tesseract OCR for images  
 - YouTube Transcript API  
-- Whisper as fallback STT  
+- ElevenLabs for audio  
 
 ### How to Reproduce
 
@@ -253,9 +249,6 @@ Everything needed is included in `requirements.txt`.
 - Used for speech-to-text  
 - License: Proprietary  
 
-### Whisper
-- MIT License  
-
 ### Tesseract OCR
 - Apache 2.0 License  
 
@@ -266,9 +259,12 @@ Everything needed is included in `requirements.txt`.
 
 ## 9. Authors
 
-- Deniz Jafarzadeh  
-- (Add group members as needed)
-
+- Tsui Lok Yin
+- Javid Mehdiyev
+- Deniz Jafarzade
+- Rufino Hyugo Ethan
+- Chamadol Nutnornont
+- 
 ---
 
 ## 10. Project License
@@ -277,12 +273,3 @@ This project is created for educational use within the **HKU CCAI9024** course.
 Not intended for commercial deployment.
 
 ---
-
-## 11. Acknowledgements
-
-- HKU CCAI9024 Teaching Team  
-- DeepSeek  
-- ElevenLabs  
-- Django & Python communities  
-- Tesseract OCR contributors  
-- PyPDF2 maintainers  
