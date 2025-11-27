@@ -264,7 +264,7 @@ Everything needed is included in `requirements.txt`.
 - Deniz Jafarzade
 - Rufino Hyugo Ethan
 - Chamadol Nutnornont
-- 
+
 ---
 
 ## 10. Project License
