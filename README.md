@@ -1,50 +1,57 @@
-ApolloQuiz – AI-Powered Quiz Generation Platform
+# ApolloQuiz – AI-Powered Quiz Generation Platform
 
-ApolloQuiz is a full-stack AI-driven platform for generating high-quality quizzes from YouTube videos, PDFs, uploaded audio, or images. The system extracts content, chunks it, and uses the DeepSeek LLM API to generate structured quizzes with explanations.
+ApolloQuiz is a full-stack AI-powered quiz generation system that transforms **YouTube videos, audio recordings, PDFs, and images** into high-quality quizzes using the **DeepSeek LLM API**.  
+It supports multiple question types, Bloom levels, difficulty selection, and rich customization.
 
-🚀 Features
-Content Upload
+---
 
-YouTube URL ingestion (transcript or transcription)
+## ✨ Features
 
-Audio transcription via ElevenLabs Whisper
+### 🔹 Content Upload
+- YouTube transcript extraction  
+- Audio transcription (ElevenLabs Whisper API)  
+- PDF text extraction  
+- Image-to-text (OCR)  
+- Chunking and text cleaning  
+- Full database storage for reproducibility  
 
-PDF text extraction
+### 🔹 AI Quiz Generation
+- Powered by **DeepSeek Chat Completion API**
+- Supports MCQ, FRQ, True/False, Reasoning, Matching, Cloze
+- Adjustable:
+  - difficulty  
+  - number of questions  
+  - Bloom level  
+  - topic focus  
+- Custom instructions supported  
+- Regenerate individual questions  
+- Generate explanations for each question  
 
-Image → OCR extraction
+### 🔹 Frontend
+- Clean UI with HTML + Tailwind (CDN)
+- Uses localStorage for selected content
+- No build tools required
 
-Automatic chunking and cleaning
+### 🔹 Backend
+- Django REST Framework
+- Gunicorn app server
+- Nginx reverse proxy
+- Extended timeouts for long LLM responses
 
-Quiz Generation
+---
 
-DeepSeek LLM-based question creation
+## 🛠 Tech Stack
 
-Multiple question types:
+| Component | Technology |
+|----------|-----------|
+| Backend Framework | Django 5.1 |
+| API Layer | DRF |
+| LLM | DeepSeek Chat API |
+| Speech-to-Text | ElevenLabs Whisper |
+| Server | Gunicorn |
+| Reverse Proxy | Nginx |
+| Database | SQLite (default) |
+| Environment | Ubuntu 22.04 |
+| Frontend | HTML, TailwindCSS (CDN), Vanilla JS |
 
-MCQ, FRQ, True/False, Reasoning, Cloze, Matching
-
-Adjustable difficulty, number of questions, Bloom level
-
-Optional custom instructions
-
-Question regeneration and explanation generation
-
-Backend
-
-Django + Django REST Framework
-
-Gunicorn application server
-
-Nginx reverse proxy with long timeouts
-
-Fully reproducible pipeline
-
-Frontend
-
-Pure HTML/CSS/JS
-
-Tailwind (CDN)
-
-LocalStorage-based state management
-
-Clean, modern UI
+---
