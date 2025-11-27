@@ -15,9 +15,9 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
+DEEPSEEK_API_KEY = "sk-bbb4ebbd85d44feeb5c1b48b6594b74d"
 ELEVENLABS_API_KEY = "sk_6cf72191420e99e6bcff8c2c9d274646c5e82978eadff311"
-ELEVENLABS_STT_MODEL = "scribe_v2" 
+ELEVENLABS_STT_MODEL = "scribe_v2"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
