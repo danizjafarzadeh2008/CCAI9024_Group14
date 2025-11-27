@@ -26,7 +26,7 @@ Deployed Live Link: http://3.25.220.94/
 ### 2.1. Clone Repository
 
 ```bash
-git clone https://github.com/your_repo_here.git
+git clone https://github.com/danizjafarzadeh2008/CCAI9024_Group14.git
 cd ai_quiz_platform
 ```
 
