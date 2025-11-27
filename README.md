@@ -1,763 +1,288 @@
-\# ApolloQuiz – AI-Powered Quiz Generator
-
-\_Group Project – CCAI9024\_
-
-ApolloQuiz is a Django-based educational tool that allows users to upload content — YouTube videos, audio recordings, PDFs, or images — and automatically generate quizzes using an LLM (DeepSeek). The app extracts and preprocesses text, sends it to the model, and returns structured quiz JSON that can be rendered into multiple question formats.
-
-Deployed Live Link: http://3.25.220.94/
-
-\---
-
-\## 🧩 1. Features
-
-\- Upload \*\*YouTube URLs\*\* → auto transcript extraction
-
-\- Upload \*\*audio recordings\*\* → ElevenLabs speech-to-text
-
-\- Upload \*\*PDFs or Images\*\* → PyPDF2 + Tesseract OCR extraction
-
-\- Organize multiple content inputs into a single quiz
-
-\- Fully configurable quiz generation settings:
-
-\- Difficulty
-
-\- Bloom’s taxonomy level
-
-\- Question types (MCQ, FRQ, T/F, Cloze, etc.)
-
-\- Topic focus
-
-\- LLM-generated questions using \*\*DeepSeek Chat Completions API\*\*
-
-\- Polished UI with Element SDK customization tools
-
-\- Compatible with local and cloud deployments (AWS)
-
-\---
-
-\## 🚀 2. Installation
-
-\### \*\*2.1. Clone the Repository\*\*
-
-\`\`\`bash
-
-git clone https://github.com/your\_repo\_here.git
-
-cd ai\_quiz\_platform
-
-2.2. Create & Activate Virtual Environment
-
-Windows (PowerShell):
-
-bash
-
-Copy code
-
-python -m venv venv
-
-.\\venv\\Scripts\\activate
-
-Mac/Linux:
-
-bash
-
-Copy code
-
-python3 -m venv venv
-
-source venv/bin/activate
-
-2.3. Install Dependencies
-
-bash
-
-Copy code
-
-pip install -r requirements.txt
-
-Your requirements.txt includes:
-
-Django 5.2.8
-
-djangorestframework 3.16.1
-
-openai-whisper
-
-pytesseract
-
-PyPDF2
-
-requests
-
-youtube-transcript-api
-
-torch
-
-and other helper libraries
-
-🔐 3. Environment Variables (API Keys Required)
-
-Create a .env file in the project root (same level as manage.py):
-
-ini
-
-Copy code
-
-DEEPSEEK\_API\_KEY=your\_deepseek\_key\_here
-
-ELEVENLABS\_API\_KEY=your\_elevenlabs\_key\_here
-
-These keys are required for quiz generation and audio transcription.
-
-▶️ 4. Running the App
-
-Run migrations and start server:
-
-bash
-
-Copy code
-
-python manage.py migrate
-
-python manage.py runserver
-
-Open the app in your browser:
-
-cpp
-
-Copy code
-
-http://127.0.0.1:8000
-
-🎬 5. Demo Steps (How to Use ApolloQuiz)
-
-Step 1 — Upload Content
-
-Go to:
-
-bash
-
-Copy code
-
-/upload/
-
-Upload any combination of:
-
-YouTube URL
-
-Audio file
-
-PDF file
-
-Image file
-
-Processed content IDs appear below the upload pane.
-
-Step 2 — Configure Quiz
-
-Go to:
-
-bash
-
-Copy code
-
-/configure/
-
-Configure:
-
-Title
-
-Difficulty
-
-Number of questions
-
-Question types
-
-Bloom level
-
-Topic focus
-
-Custom instructions
-
-Click Generate Quiz.
-
-Step 3 — Loading State
-
-You will be redirected to:
-
-bash
-
-Copy code
-
-/quiz-loading/
-
-DeepSeek will generate the quiz.
-
-The page auto-updates once complete.
-
-Step 4 — View Quiz
-
-Go to:
-
-bash
-
-Copy code
-
-/quiz/
-
-Quiz is shown with:
-
-Questions
-
-Choices
-
-Explanations (if enabled)
-
-📦 6. Technology Stack
-
-Backend
-
-Python 3.13
-
-Django 5.2.8
-
-Django REST Framework
-
-SQLite
-
-AI / ML
-
-DeepSeek Chat Completions API (Quiz Generation)
-
-ElevenLabs API (Audio Transcription)
-
-Whisper (local fallback STT)
-
-Tesseract OCR (for images)
-
-PyPDF2 (PDF reader)
-
-Frontend
-
-TailwindCSS
-
-Element SDK
-
-Vanilla JS (fetch API)
-
-Deployment
-
-Ubuntu 22.04 LTS
-
-AWS EC2 (Lightsail)
-
-Nginx + Gunicorn
-
-Certbot SSL
-
-🧪 7. Reproducibility Notes
-
-Environment and OS
-
-Ubuntu 22.04 LTS server (AWS deployment)
-
-Local development on Windows acceptable
-
-Programming Language & Frameworks
-
-Python 3.13
-
-Django 5.2.8
-
-SQLite (default Django database)
-
-AI / API Components
-
-DeepSeek API for quiz generation
-
-ElevenLabs API for audio transcription
-
-Content Extraction Tools
-
-Whisper (for fallback STT)
-
-PyPDF2 (PDF reading)
-
-Tesseract OCR (image text extraction)
-
-Dependency Installation
-
-All libraries are provided in requirements.txt
-
-Install via pip install -r requirements.txt
-
-Running the App
-
-Activate virtual environment
-
-Run migrations
-
-Use python manage.py runserver
-
-Access at 127.0.0.1:8000
-
-These steps are fully sufficient to reproduce the app on any compatible machine.
-
-📜 8. Model / API Licenses
-
-DeepSeek API
-
-Purpose: LLM quiz generation
-
-URL: https://platform.deepseek.com/
-
-License: Proprietary (API-based access)
-
-ElevenLabs API
-
-Purpose: Speech-to-text
-
-URL: https://elevenlabs.io/docs
-
-License: Proprietary API
-
-Tesseract OCR
-
-License: Apache 2.0
-
-Purpose: Image text extraction
-
-PyPDF2
-
-License: BSD 3-Clause
-
-Purpose: PDF parsing
-
-Whisper
-
-License: MIT
-
-Purpose: Audio transcription fallback
-
-👥 9. Authors
-
-Deniz Jafarzadeh
-
-(Add other group members as needed)
-
-📄 10. License
-
-This project is created for educational use within the HKU CCAI9024 course.
-
-Not intended for commercial deployment.
-
-📝 11. Acknowledgements
-
-We thank:
-
-HKU CCAI9024 Teaching Team
-
-DeepSeek
-
-ElevenLabs
-
-Django & Python open-source communities
-
-Tesseract OCR & PyPDF2 contributors
-
-yaml
-
-Copy code
-
-\---
-
-If you want, I can also provide:
-
-✅ A shorter README
-
-✅ A version optimized for GitHub Pages
-
-✅ A "Project Architecture Diagram" in Markdown or PNG
-
-✅ A “How each module works” section for better documentation
-
-Just tell me!
-
-You said:
-
-You just give me them as a text put all the things in .md format even the commands as well
-
-ChatGPT said:
-
-Here is everything rewritten strictly as plain text inside a .md code block, exactly how a README.md file should be written.
-
-All headings, sections, commands, and content are fully rendered in Markdown format — no extra explanations, no comments, no mixing.
-
-Copy–paste directly into README.md.
-
-md
-
-Copy code
-
-\# ApolloQuiz – AI-Powered Quiz Generator
-
-\_Group Project – CCAI9024\_
+# ApolloQuiz – AI-Powered Quiz Generator
+_Group Project – CCAI9024_
 
 ApolloQuiz is a Django-based educational platform that generates quizzes from multimedia content such as YouTube videos, audio, PDFs, and images. The system extracts text, processes it, and uses DeepSeek LLM to generate structured quiz questions in JSON.
 
-\---
+Deployed Live Link: http://3.25.220.94/
 
-\## 1. Features
+---
 
-\- Upload YouTube URLs → automatic transcript extraction
+## 1. Features
 
-\- Upload audio recordings → ElevenLabs speech-to-text
+- Upload YouTube URLs → automatic transcript extraction  
+- Upload audio recordings → ElevenLabs speech-to-text  
+- Upload PDF files → PyPDF2 text extraction  
+- Upload images → Tesseract OCR  
+- Combine multiple content sources for a single quiz  
+- Fully configurable quiz generation settings  
+- Generate questions using DeepSeek Chat Completions API  
+- Modern UI with TailwindCSS and Element SDK  
+- Works on local and cloud deployments (AWS, Ubuntu)
 
-\- Upload PDF files → PyPDF2 text extraction
+---
 
-\- Upload images → Tesseract OCR
+## 2. Installation
 
-\- Combine multiple content sources for one quiz
+### 2.1. Clone Repository
 
-\- Fully configurable quiz generation settings
+```bash
+git clone https://github.com/your_repo_here.git
+cd ai_quiz_platform
+```
 
-\- Generate questions with DeepSeek Chat Completions API
+### 2.2. Create and Activate Virtual Environment
 
-\- Modern UI with TailwindCSS and Element SDK
+**Windows (PowerShell):**
 
-\- Supports local and cloud deployment (AWS, Ubuntu)
-
-\---
-
-\## 2. Installation
-
-\### 2.1. Clone Repository
-
-\`\`\`bash
-
-git clone https://github.com/your\_repo\_here.git
-
-cd ai\_quiz\_platform
-
-2.2. Create and Activate Virtual Environment
-
-Windows (PowerShell):
-
-bash
-
-Copy code
-
+```bash
 python -m venv venv
+.env\Scriptsctivate
+```
 
-.\\venv\\Scripts\\activate
+**Mac/Linux:**
 
-Mac/Linux:
-
-bash
-
-Copy code
-
+```bash
 python3 -m venv venv
-
 source venv/bin/activate
+```
 
-2.3. Install Dependencies
+### 2.3. Install Dependencies
 
-bash
-
-Copy code
-
+```bash
 pip install -r requirements.txt
+```
 
-Dependencies include:
+Included dependencies:
 
-Django 5.2.8
+- Django 5.2.8  
+- Django REST Framework  
+- PyPDF2  
+- pytesseract  
+- openai-whisper  
+- ElevenLabs API tools  
+- youtube-transcript-api  
+- requests  
+- torch  
+- And more listed in `requirements.txt`
 
-Django REST Framework
+---
 
-PyPDF2
+## 3. Environment Variables
 
-pytesseract
+Create a `.env` file in the project root:
 
-openai-whisper
+```env
+DEEPSEEK_API_KEY=your_deepseek_key_here
+ELEVENLABS_API_KEY=your_elevenlabs_key_here
+```
 
-ElevenLabs tools
+These keys are required for quiz generation and audio transcription.
 
-youtube-transcript-api
+---
 
-requests
+## 4. Running the Application
 
-torch
+Run database migrations:
 
-and others listed in requirements.txt
-
-3\. Environment Variables
-
-Create a .env file in the project root:
-
-env
-
-Copy code
-
-DEEPSEEK\_API\_KEY=your\_deepseek\_key\_here
-
-ELEVENLABS\_API\_KEY=your\_elevenlabs\_key\_here
-
-These API keys are required for LLM quiz generation and audio transcription.
-
-4\. Running the Application
-
-Run migrations:
-
-bash
-
-Copy code
-
+```bash
 python manage.py migrate
+```
 
-Start the development server:
+Start Django server:
 
-bash
-
-Copy code
-
+```bash
 python manage.py runserver
+```
 
-Open the app in a browser:
+Visit the app:
 
-cpp
-
-Copy code
-
+```text
 http://127.0.0.1:8000
+```
 
-5\. Demo Steps (User Flow)
+---
 
-Step 1 — Upload Content
+## 5. Demo Steps (User Flow)
 
-Navigate to:
+### Step 1 — Upload Content
 
-bash
+Go to:
 
-Copy code
-
+```text
 /upload/
+```
 
-Upload:
+Upload any:
 
-YouTube links
+- YouTube URL  
+- Audio file  
+- PDF file  
+- Image file  
 
-Audio recordings
+The backend extracts text and creates content IDs.
 
-PDFs
+---
 
-Images
+### Step 2 — Configure Quiz
 
-The system extracts text and assigns content IDs.
+Go to:
 
-Step 2 — Configure Quiz
-
-Navigate to:
-
-bash
-
-Copy code
-
+```text
 /configure/
+```
 
 Configure:
 
-Quiz title
+- Title  
+- Number of questions  
+- Difficulty  
+- Bloom taxonomy level  
+- Question types  
+- Topic focus  
+- Custom instructions  
 
-Number of questions
+Click **Generate Quiz**.
 
-Difficulty
+---
 
-Question types
+### Step 3 — Loading Screen
 
-Bloom level
+You are redirected to:
 
-Topic focus
+```text
+/quiz-loading/<quiz_id>
+```
 
-Custom instructions
+DeepSeek processes quiz generation.
 
-Click Generate Quiz.
+---
 
-Step 3 — Loading Status
+### Step 4 — View Quiz
 
-The system redirects to:
+Go to:
 
-bash
-
-Copy code
-
-/quiz-loading/
-
-DeepSeek processes the quiz until completed.
-
-Step 4 — View Quiz
-
-Navigate to:
-
-bash
-
-Copy code
-
+```text
 /quizzes/
+```
 
-Then select the quiz to view:
+Select your quiz to see:
 
-Questions
+- Questions  
+- Choices  
+- Answers  
+- Explanations  
 
-Choices
+---
 
-Explanations
+## 6. Technology Stack
 
-6\. Technology Stack
+### Backend
+- Python 3.13  
+- Django 5.2.8  
+- Django REST Framework  
+- SQLite (default)
 
-Backend
+### AI / ML
+- DeepSeek Chat Completions API  
+- ElevenLabs Speech-to-Text  
+- openai-whisper (fallback STT)  
+- Tesseract OCR  
+- PyPDF2  
+- YouTube Transcript API  
 
-Python 3.13
+### Frontend
+- TailwindCSS  
+- Vanilla JavaScript  
+- Element SDK  
 
-Django 5.2.8
+### Deployment
+- Ubuntu 22.04 LTS  
+- AWS EC2 / Lightsail  
+- Nginx  
+- Gunicorn  
+- Certbot SSL  
 
-Django REST Framework
+---
 
-SQLite
+## 7. Reproducibility Notes
 
-AI / ML
+### Environment
 
-DeepSeek Chat Completions API
+- Deployed on Ubuntu 22.04 LTS (AWS)
+- Local development: Windows or Ubuntu
 
-ElevenLabs Speech-to-Text
+### Frameworks & Language
 
-openai-whisper (fallback STT)
+- Python 3.13  
+- Django 5.2.8  
+- SQLite database  
 
-Tesseract OCR
+### APIs Used
 
-PyPDF2
+- DeepSeek (quiz generation)  
+- ElevenLabs (audio transcription)  
 
-Frontend
+### Content Extraction Tools
 
-TailwindCSS
+- PyPDF2 for PDFs  
+- Tesseract OCR for images  
+- YouTube Transcript API  
+- Whisper as fallback STT  
 
-Vanilla JS
+### How to Reproduce
 
-Element SDK
+1. Clone repo  
+2. Create virtual environment  
+3. Install dependencies  
+4. Add `.env` API keys  
+5. Run migrations  
+6. Start server  
 
-Deployment
+Everything needed is included in `requirements.txt`.
 
-Ubuntu 22.04 LTS
+---
 
-AWS EC2 / Lightsail
+## 8. Model and API Licenses
 
-Nginx
+### DeepSeek API
+- Used for quiz generation  
+- URL: https://platform.deepseek.com  
+- License: Proprietary (API-based)
 
-Gunicorn
+### ElevenLabs API
+- Used for speech-to-text  
+- License: Proprietary  
 
-Certbot SSL
+### Whisper
+- MIT License  
 
-7\. Reproducibility Notes
+### Tesseract OCR
+- Apache 2.0 License  
 
-Environment
+### PyPDF2
+- BSD 3-Clause License  
 
-App deployed on Ubuntu 22.04 LTS (AWS)
+---
 
-Local development on Windows or Ubuntu
+## 9. Authors
 
-Programming Language & Frameworks
+- Deniz Jafarzadeh  
+- (Add group members as needed)
 
-Python 3.13
+---
 
-Django 5.2.8
+## 10. Project License
 
-SQLite database
+This project is created for educational use within the **HKU CCAI9024** course.  
+Not intended for commercial deployment.
 
-APIs Used
+---
 
-DeepSeek API for quiz generation
+## 11. Acknowledgements
 
-ElevenLabs API for audio transcription
-
-Libraries for Content Extraction
-
-PyPDF2 for PDF
-
-Tesseract OCR for images
-
-YouTube Transcript API
-
-Whisper (fallback STT)
-
-Dependencies
-
-Listed in requirements.txt
-
-Install via pip install -r requirements.txt
-
-Running
-
-Activate virtual environment
-
-Run migrations
-
-Start using python manage.py runserver
-
-Open in 127.0.0.1:8000
-
-These steps are sufficient to fully reproduce the app.
-
-8\. Model and API Licenses
-
-DeepSeek
-
-Used for quiz generation
-
-API-based usage
-
-Proprietary license
-
-ElevenLabs
-
-Used for audio transcription
-
-Proprietary license
-
-Whisper
-
-MIT License
-
-Tesseract OCR
-
-Apache 2.0 License
-
-PyPDF2
-
-BSD 3-Clause License
-
-9\. Authors
-
-Deniz Jafarzadeh
-
-Other group members (add names if required)
-
-10\. Project License
-
-This project is intended for educational use within the HKU CCAI9024 course.
-
-Commercial use is not permitted.
-
-11\. Acknowledgements
-
-HKU CCAI9024 teaching team
-
-DeepSeek
-
-ElevenLabs
-
-Django community
-
-Tesseract OCR developers
-
-PyPDF2 maintainers
+- HKU CCAI9024 Teaching Team  
+- DeepSeek  
+- ElevenLabs  
+- Django & Python communities  
+- Tesseract OCR contributors  
+- PyPDF2 maintainers  
