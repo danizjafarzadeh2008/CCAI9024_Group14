@@ -3,6 +3,9 @@
 ApolloQuiz is a full-stack AI-powered quiz generation system that transforms **YouTube videos, audio recordings, PDFs, and images** into high-quality quizzes using the **DeepSeek LLM API**.  
 It supports multiple question types, Bloom levels, difficulty selection, and rich customization.
 
+Deployed Live Link: http://3.25.220.94/ 
+
+
 ---
 
 ## ✨ Features
