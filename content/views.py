@@ -12,6 +12,9 @@ from .serializers import (
     DocumentContentCreateSerializer,
 )
 
+import logging
+
+
 from .utils import (
     simple_chunk_text,
     fetch_youtube_transcript,
@@ -66,87 +69,94 @@ def create_youtube_content(request):
         status=status.HTTP_201_CREATED,
     )
 
+logger = logging.getLogger(__name__)
 
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser])
 def create_audio_content(request):
-    serializer = AudioContentCreateSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
+    # Debug – see what’s actually sent
+    logger.info("FILES keys: %s", list(request.FILES.keys()))
+    logger.info("DATA keys: %s", list(request.data.keys()))
 
-    file = serializer.validated_data["file"]
-    language = serializer.validated_data.get("language", "")
-    title = serializer.validated_data.get("title") or file.name
-    description = serializer.validated_data.get("description", "")
-
-    content = ContentSource.objects.create(
-        type=ContentSource.SourceType.AUDIO,
-        file=file,
-        language=language,
-        title=title,
-        description=description,
-        status=ContentSource.Status.PROCESSING,
+    # Your frontend sends the file as "file"
+    audio_file = (
+        request.FILES.get("audio")
+        or request.FILES.get("file")
+        or request.FILES.get("audio_file")
+        or (next(iter(request.FILES.values())) if request.FILES else None)
     )
 
-    allowed_extensions = (".mp3", ".wav", ".m4a", ".mp4")
-    filename = file.name.lower()
-    if not filename.endswith(allowed_extensions):
-        content.status = ContentSource.Status.FAILED
-        content.error_message = "Unsupported audio format"
-        content.save()
+    title = request.data.get("title") or (audio_file.name if audio_file else "Audio upload")
+    language = request.data.get("language") or ""
+
+    if not audio_file:
         return Response(
             {
-                "detail": "Unsupported audio format. Please upload MP3, WAV, M4A, or MP4."
+                "success": False,
+                "error": "No audio file provided. "
+                         "Available FILES keys: " + str(list(request.FILES.keys()))
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    try:
-        audio_path = content.file.path
+    # First create a ContentSource row in PROCESSING state and save the file
+    content = ContentSource.objects.create(
+        type=ContentSource.SourceType.AUDIO,   # ✅ field is "type"
+        file=audio_file,                       # ✅ field is "file"
+        language=language,
+        title=title,
+        status=ContentSource.Status.PROCESSING,
+    )
 
-        transcript_text = transcribe_audio_with_elevenlabs(
-            file_path=audio_path,
-            language=language or "",
+    try:
+        # 1) Transcribe with ElevenLabs (use saved file path)
+        text = transcribe_audio_with_elevenlabs(content.file.path, language=language)
+
+        # 2) Clean + chunk
+        cleaned = clean_text(text)
+        chunks = simple_chunk_text(cleaned)
+
+        # 3) Save chunks with correct FK + field names
+        ContentChunk.objects.bulk_create([
+            ContentChunk(
+                content=content,    # ✅ FK name is "content"
+                index=i,            # ✅ field name is "index"
+                text=chunk,
+            )
+            for i, chunk in enumerate(chunks)
+        ])
+
+        # 4) Update ContentSource now that processing succeeded
+        content.raw_text = cleaned
+        content.status = ContentSource.Status.READY
+        content.error_message = ""
+        content.save()
+
+        return Response(
+            {
+                "success": True,
+                "id": content.id,
+                "title":content.title,
+                "chunk_count": len(chunks),
+            },
+            status=status.HTTP_201_CREATED,
         )
 
-        if not transcript_text:
-            raise RuntimeError("ElevenLabs transcription returned empty text.")
-
-        transcript_text = clean_text(transcript_text)
-
-        content.raw_text = transcript_text
-        content.save()
-
-        chunks = simple_chunk_text(transcript_text, max_chars=1000)
-        for idx, chunk_text in enumerate(chunks, start=1):
-            ContentChunk.objects.create(
-                content=content,
-                index=idx,
-                text=chunk_text,
-                tokens_estimate=len(chunk_text.split()),
-            )
-
-        content.status = ContentSource.Status.READY
-        content.save()
-
-    except RuntimeError as e:
+    except Exception as e:
+        logger.exception("Error while processing audio upload")
         content.status = ContentSource.Status.FAILED
         content.error_message = str(e)
         content.save()
+
         return Response(
-            {"detail": str(e)},
+            {
+                "success": False,
+                "error": "Failed to transcribe audio.",
+                "details": str(e),
+            },
             status=status.HTTP_400_BAD_REQUEST,
         )
-    except Exception as e:
-        content.status = ContentSource.Status.FAILED
-        content.error_message = str(e)
-        content.save()
-        return Response(
-            {"detail": "Failed to process audio content", "error": str(e)},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
 
-    output_serializer = ContentSourceSerializer(content, context={"request": request})
-    return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser])

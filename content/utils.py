@@ -9,7 +9,7 @@ from PIL import Image
 from PyPDF2 import PdfReader
 from pdf2image import convert_from_path
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
-
+import tempfile
 
 def clean_text(text: str) -> str:
     if not text:
@@ -70,7 +70,7 @@ def fetch_youtube_transcript(youtube_url: str, language: str = "en") -> str:
         raise RuntimeError(f"Failed to fetch YouTube transcript: {e}")
 
 def transcribe_audio_with_elevenlabs(
-    file_path: str,
+    file_obj_or_path,
     language: str = "",
 ) -> str:
 
@@ -82,37 +82,60 @@ def transcribe_audio_with_elevenlabs(
 
     url = "https://api.elevenlabs.io/v1/speech-to-text"
 
-    with open(file_path, "rb") as f:
-        files = {
-            "file": (os.path.basename(file_path), f, "application/octet-stream"),
-        }
-        data = {
-            "model_id": model_id,
-        }
-        if language:
-            data["language_code"] = language
+    temp_path = None
 
-        headers = {
-            "xi-api-key": api_key,
-        }
-
-        response = requests.post(url, headers=headers, files=files, data=data, timeout=120)
-
-    if response.status_code != 200:
-        raise RuntimeError(
-            f"ElevenLabs STT failed with status {response.status_code}: {response.text}"
-        )
+    # ✅ Support both Django UploadedFile and plain file paths
+    if isinstance(file_obj_or_path, (str, bytes, os.PathLike)):
+        file_path = file_obj_or_path
+    else:
+        # Assume it's a Django UploadedFile or file-like object
+        suffix = os.path.splitext(getattr(file_obj_or_path, "name", "audio"))[1] or ".wav"
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            if hasattr(file_obj_or_path, "chunks"):
+                for chunk in file_obj_or_path.chunks():
+                    tmp.write(chunk)
+            else:
+                tmp.write(file_obj_or_path.read())
+            temp_path = tmp.name
+        file_path = temp_path
 
     try:
-        payload = response.json()
-    except Exception as e:
-        raise RuntimeError(f"Failed to parse ElevenLabs STT response: {e}")
+        with open(file_path, "rb") as f:
+            files = {
+                "file": (os.path.basename(file_path), f, "application/octet-stream"),
+            }
+            data = {
+                "model_id": model_id,
+            }
+            if language:
+                data["language_code"] = language
 
-    transcript_text = payload.get("text") or payload.get("transcript")
-    if not transcript_text:
-        raise RuntimeError(f"ElevenLabs STT returned no transcript field: {payload}")
+            headers = {
+                "xi-api-key": api_key,
+            }
 
-    return clean_text(transcript_text)
+            response = requests.post(url, headers=headers, files=files, data=data, timeout=120)
+
+        if response.status_code != 200:
+            raise RuntimeError(
+                f"ElevenLabs STT failed with status {response.status_code}: {response.text}"
+            )
+
+        try:
+            payload = response.json()
+        except Exception as e:
+            raise RuntimeError(f"Failed to parse ElevenLabs STT response: {e}")
+
+        transcript_text = payload.get("text") or payload.get("transcript")
+        if not transcript_text:
+            raise RuntimeError(f"ElevenLabs STT returned no transcript field: {payload}")
+
+        return clean_text(transcript_text)
+
+    finally:
+        # clean up temp file if we created one
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)
 
 def extract_text_from_pdf_text_layer(pdf_path: str) -> str:
     text_chunks = []

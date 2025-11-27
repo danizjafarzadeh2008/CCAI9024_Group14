@@ -681,8 +681,9 @@
           showMessage('audio-message', 'Audio uploaded and processed successfully!', 'success');
           showResponse('audio-response', data);
           
-          if (data.id) {
-            contentIds.push(data.id);
+          const newId = data.id || data.source_id || data.source?.id;
+          if (newId) {
+            contentIds.push(newId);
             updateContentIds();
           }
           

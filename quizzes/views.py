@@ -14,6 +14,7 @@ from .services import (
     save_quiz_from_json,
     regenerate_question_via_deepseek,
     explain_question_via_deepseek,
+    DeepseekError,
 )
 
 def ping(request):
@@ -94,10 +95,19 @@ def create_quiz(request):
         quiz.status = Quiz.Status.READY
         quiz.save()
 
+    except DeepseekError as e:
+        # ❗ DeepSeek-specific failure
+        quiz.status = Quiz.Status.FAILED
+        quiz.error_message = str(e)
+        quiz.save()
+        return Response(
+            {"detail": "Quiz generation failed due to DeepSeek error.", "error": str(e)},
+            status=status.HTTP_502_BAD_GATEWAY,
+        )
+
     except Exception as e:
         import traceback
         traceback.print_exc()
-
         quiz.status = Quiz.Status.FAILED
         quiz.error_message = str(e)
         quiz.save()

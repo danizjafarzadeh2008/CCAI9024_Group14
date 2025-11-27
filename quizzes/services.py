@@ -3,7 +3,12 @@ from content.models import ContentSource, ContentChunk
 from .models import Quiz, Question
 from typing import List, Dict, Any
 import requests
+import logging
 import json
+
+class DeepseekError(Exception):
+    """Custom error type for DeepSeek API problems."""
+    pass
 
 def collect_chunks(contents: List[ContentSource]) -> List[Dict[str, Any]]:
     if not contents:
@@ -107,6 +112,13 @@ def _dummy_generate_quiz(
     }
     return quiz_json
 
+logger = logging.getLogger(__name__)
+
+class DeepseekError(Exception):
+    """Custom error type for DeepSeek API problems."""
+    pass
+
+
 def generate_quiz_via_deepseek(
     quiz_title: str,
     settings: dict,
@@ -116,16 +128,18 @@ def generate_quiz_via_deepseek(
 ) -> Dict[str, Any]:
 
     api_key = getattr(django_settings, "DEEPSEEK_API_KEY", None)
-    if not api_key:
-        print("⚠️ No DEEPSEEK_API_KEY set – using dummy quiz generator.")
-        return _dummy_generate_quiz(quiz_title, settings, contents, chunks, user_instructions)
 
+    # If you REALLY never want dummy, you can also raise here instead
+    if not api_key:
+        raise DeepseekError("DEEPSEEK_API_KEY is not set on the server")
+
+    # Keep context reasonable but you can adjust this up/down
     if not chunks:
         merged_text = "No content provided."
     else:
         merged_text = "\n".join(
-            (c["text"] or "")[:900]
-            for c in chunks[:6]
+            (c["text"] or "")[:900]    # up to 900 chars per chunk
+            for c in chunks[:6]        # up to 6 chunks
         )
 
     system_prompt = (
@@ -156,13 +170,13 @@ def generate_quiz_via_deepseek(
                         {"label": "A", "text": "string"},
                         {"label": "B", "text": "string"},
                         {"label": "C", "text": "string"},
-                        {"label": "D", "text": "string"}
+                        {"label": "D", "text": "string"},
                     ],
                     "explanation": "string (why the answer is correct)",
-                    "metadata": "optional object"
+                    "metadata": "optional object",
                 }
-            ]
-        }
+            ],
+        },
     }
 
     try:
@@ -181,22 +195,42 @@ def generate_quiz_via_deepseek(
                 "temperature": 0.3,
                 "response_format": {"type": "json_object"},
             },
-            timeout=60,
+            timeout=180,  # ⏱ give DeepSeek up to 3 minutes
         )
         resp.raise_for_status()
+    except requests.exceptions.Timeout as e:
+        logger.error("DeepSeek timeout: %s", e)
+        raise DeepseekError(f"DeepSeek request timed out after 180s: {e}")
+    except requests.exceptions.RequestException as e:
+        logger.error("DeepSeek HTTP error: %s", e)
+        raise DeepseekError(f"DeepSeek HTTP error: {e}")
+
+    try:
         data = resp.json()
+    except ValueError as e:
+        logger.error("DeepSeek returned non-JSON: %s / body=%s", e, resp.text[:300])
+        raise DeepseekError(f"Failed to parse DeepSeek JSON: {e}")
 
+    try:
         content = data["choices"][0]["message"]["content"]
-        quiz_json = json.loads(content)
-
-        if "questions" not in quiz_json or not isinstance(quiz_json["questions"], list):
-            raise ValueError("DeepSeek returned JSON without a 'questions' list.")
-
-        return quiz_json
-
     except Exception as e:
-        print("❌ DeepSeek quiz generation failed, using dummy:", e)
-        return _dummy_generate_quiz(quiz_title, settings, contents, chunks, user_instructions)
+        logger.error("DeepSeek unexpected response format: %s / data=%s", e, str(data)[:300])
+        raise DeepseekError(f"Unexpected DeepSeek response format: {e}")
+
+    # DeepSeek with response_format=json_object may give dict or string
+    if isinstance(content, dict):
+        quiz_json = content
+    else:
+        try:
+            quiz_json = json.loads(content)
+        except json.JSONDecodeError as e:
+            logger.error("DeepSeek content not JSON: %s / content=%s", e, str(content)[:300])
+            raise DeepseekError(f"DeepSeek returned non-JSON content: {e}")
+
+    if "questions" not in quiz_json or not isinstance(quiz_json["questions"], list):
+        raise DeepseekError("DeepSeek JSON has no valid 'questions' list")
+
+    return quiz_json
 
 def save_quiz_from_json(quiz: Quiz, quiz_json: Dict[str, Any]) -> None:
     if quiz_json is None:
